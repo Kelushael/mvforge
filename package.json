@@ -1,0 +1,15 @@
+{
+  "name": "bpm-grid",
+  "version": "1.0.0",
+  "description": "BPM beat grid + lyric sync for video cuts",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "dependencies": {
+    "music-tempo": "^1.4.0"
+  },
+  "devDependencies": {
+    "electron": "^28.0.0"
+  }
+}

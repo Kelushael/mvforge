@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BPM Grid</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">◈ BPM GRID</div>
+        <div class="header-status" id="headerStatus"></div>
+    </header>
+
+    <!-- Drop Zone -->
+    <section class="drop-section" id="dropSection">
+        <div class="drop-zone" id="dropZone">
+            <div class="drop-icon">⏺</div>
+            <div class="drop-text">Drop audio file here</div>
+            <div class="drop-sub">MP3 · WAV · FLAC · M4A · OGG</div>
+            <button class="btn-ghost" id="browseBtn">Browse</button>
+        </div>
+    </section>
+
+    <!-- Main content (hidden until file loaded) -->
+    <div class="main-content hidden" id="mainContent">
+
+        <!-- Controls Bar -->
+        <div class="controls-bar">
+            <div class="control-group">
+                <label>BPM</label>
+                <input type="number" id="bpmInput" class="bpm-input" min="40" max="300" step="0.1">
+                <button class="btn-small" id="redetectBtn" title="Re-detect BPM">↺</button>
+            </div>
+            <div class="track-info">
+                <span id="trackName">—</span>
+                <span class="separator">·</span>
+                <span id="trackDuration">—</span>
+            </div>
+            <div class="control-group">
+                <button class="btn-primary" id="transcribeBtn">▶ Auto Transcribe</button>
+                <button class="btn-ghost" id="manualBtn">✏ Paste Lyrics</button>
+            </div>
+        </div>
+
+        <!-- Grid Stats -->
+        <div class="grid-stats">
+            <div class="stat-block downbeat">
+                <div class="stat-label">DOWNBEAT</div>
+                <div class="stat-value" id="statDownbeat">—</div>
+                <div class="stat-sub" id="statDownbeatCount">— cuts</div>
+            </div>
+            <div class="stat-block half">
+                <div class="stat-label">HALF NOTE</div>
+                <div class="stat-value" id="statHalf">—</div>
+                <div class="stat-sub" id="statHalfCount">— cuts</div>
+            </div>
+            <div class="stat-block quarter">
+                <div class="stat-label">QUARTER</div>
+                <div class="stat-value" id="statQuarter">—</div>
+                <div class="stat-sub" id="statQuarterCount">— cuts</div>
+            </div>
+            <div class="stat-block offbeat">
+                <div class="stat-label">OFFBEAT</div>
+                <div class="stat-value" id="statOffbeat">—</div>
+                <div class="stat-sub" id="statOffbeatCount">— cuts</div>
+            </div>
+        </div>
+
+        <!-- Waveform Canvas -->
+        <div class="canvas-section">
+            <div class="section-label">WAVEFORM</div>
+            <div class="canvas-scroll" id="waveformScroll">
+                <canvas id="waveformCanvas"></canvas>
+            </div>
+        </div>
+
+        <!-- Timeline Canvas -->
+        <div class="canvas-section">
+            <div class="section-label">BEAT GRID</div>
+            <div class="canvas-scroll" id="timelineScroll">
+                <canvas id="timelineCanvas"></canvas>
+            </div>
+        </div>
+
+        <!-- Status Bar -->
+        <div class="status-bar hidden" id="statusBar">
+            <div class="spinner"></div>
+            <div class="status-text" id="statusText">Processing...</div>
+        </div>
+
+        <!-- Lyrics Section -->
+        <div class="lyrics-section hidden" id="lyricsSection">
+            <div class="section-header">
+                <div class="section-label">LYRICS GRID
+                    <span class="word-count" id="wordCount"></span>
+                </div>
+                <div class="legend">
+                    <span class="legend-item downbeat">● DOWNBEAT</span>
+                    <span class="legend-item half">● HALF</span>
+                    <span class="legend-item quarter">● QUARTER</span>
+                    <span class="legend-item offbeat">● OFFBEAT</span>
+                </div>
+            </div>
+            <div class="lyrics-grid" id="lyricsGrid"></div>
+        </div>
+
+        <!-- Export Bar -->
+        <div class="export-bar hidden" id="exportBar">
+            <button class="btn-export" id="exportJson">⬇ Export JSON</button>
+            <button class="btn-export" id="exportLrc">⬇ Export LRC</button>
+            <button class="btn-ghost" id="resetBtn">✕ New File</button>
+        </div>
+
+    </div>
+
+    <!-- Manual Lyrics Modal -->
+    <div class="modal-overlay hidden" id="manualModal">
+        <div class="modal">
+            <div class="modal-header">Paste Lyrics</div>
+            <div class="modal-sub">Words will be distributed evenly across the beat grid.</div>
+            <textarea class="lyrics-input" id="lyricsInput"
+                placeholder="Paste or type lyrics here..."></textarea>
+            <div class="modal-actions">
+                <button class="btn-ghost" id="manualCancelBtn">Cancel</button>
+                <button class="btn-primary" id="manualApplyBtn">Apply to Grid</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script src="renderer.js"></script>
+</body>
+</html>
