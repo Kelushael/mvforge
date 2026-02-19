@@ -65,7 +65,9 @@ ipcMain.handle('find-python', () => {
 
 ipcMain.handle('transcribe', async (_, { audioPath, pythonCmd, modelSize }) => {
     return new Promise((resolve) => {
-        const scriptPath = path.join(__dirname, 'transcribe.py');
+        const scriptPath = app.isPackaged
+            ? path.join(process.resourcesPath, 'transcribe.py')
+            : path.join(__dirname, 'transcribe.py');
         const proc = spawn(pythonCmd, [scriptPath, audioPath, modelSize || 'base']);
         let stdout = '';
         let stderr = '';

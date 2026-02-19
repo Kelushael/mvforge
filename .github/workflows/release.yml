@@ -1,0 +1,98 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag (e.g. v1.0.0)'
+        required: true
+        default: 'v1.0.0'
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Windows installer (.exe)
+        run: npm run build:win
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: dist/*.exe
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Linux AppImage
+        run: npm run build:linux
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-appimage
+          path: dist/*.AppImage
+
+  release:
+    needs: [build-windows, build-linux]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: windows-installer
+          path: dist/
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: linux-appimage
+          path: dist/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name || inputs.version }}
+          name: BPM Grid ${{ github.ref_name || inputs.version }}
+          body: |
+            ## BPM Grid ${{ github.ref_name || inputs.version }}
+
+            Beat grid + lyric sync app for video cuts — powered by BPM math.
+
+            ### Downloads
+            | Platform | File |
+            |----------|------|
+            | Windows  | `BPM Grid Setup *.exe` |
+            | Linux    | `BPM Grid-*.AppImage` |
+
+            ### Requirements
+            - Auto Transcribe needs Python + `pip install faster-whisper`
+            - Manual lyrics mode works with no extras
+
+            ### Install
+            **Windows** → Run the `.exe`, follow the installer
+            **Linux** → `chmod +x "BPM Grid-*.AppImage" && ./"BPM Grid-*.AppImage"`
+          files: dist/*
+          draft: false
+          prerelease: false
