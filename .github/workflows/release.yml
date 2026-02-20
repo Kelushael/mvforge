@@ -26,9 +26,7 @@ jobs:
         run: npm install
 
       - name: Build Windows installer (.exe)
-        run: npm run build:win
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx electron-builder --win --publish never
 
       - uses: actions/upload-artifact@v4
         with:
@@ -49,9 +47,7 @@ jobs:
         run: npm install
 
       - name: Build Linux AppImage
-        run: npm run build:linux
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx electron-builder --linux --publish never
 
       - uses: actions/upload-artifact@v4
         with:
