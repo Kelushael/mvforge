@@ -2,6 +2,7 @@
   "name": "bpm-grid",
   "version": "1.0.0",
   "description": "BPM beat grid + lyric sync for video cuts",
+  "author": "Kelushael",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
