@@ -115,6 +115,41 @@
             <button class="btn-ghost" id="resetBtn">✕ New File</button>
         </div>
 
+        <!-- Footage Tracker -->
+        <div class="footage-section" id="footageSection">
+
+            <div class="footage-header">
+                <div class="section-label">FOOTAGE TRACKER</div>
+                <div class="footage-meta">
+                    <span id="footageAdded">0:00</span>
+                    <span class="footage-sep"> of </span>
+                    <span id="footageTotal">—</span>
+                    <span class="footage-sep"> · </span>
+                    <span class="footage-remaining-label">remaining:</span>
+                    <span id="footageRemaining" class="footage-remaining">—</span>
+                </div>
+                <button class="btn-small" id="footageClearBtn" title="Clear all clips">✕ clear</button>
+            </div>
+
+            <!-- Progress bar -->
+            <div class="footage-bar-wrap">
+                <div class="footage-bar" id="footageBar">
+                    <div class="footage-fill" id="footageFill"></div>
+                </div>
+                <div class="footage-pct" id="footagePct">0%</div>
+            </div>
+
+            <!-- Clip drop zone -->
+            <div class="clip-drop" id="clipDrop">
+                <span class="clip-drop-icon">▤</span>
+                <span>drop video clips here — MP4 · MOV · AVI · MKV</span>
+            </div>
+
+            <!-- Clip list -->
+            <div class="clip-list" id="clipList"></div>
+
+        </div>
+
     </div>
 
     <!-- Manual Lyrics Modal -->

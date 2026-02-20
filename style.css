@@ -474,6 +474,178 @@ body {
 
 .btn-export:hover { background: var(--surface); }
 
+/* ── Footage Tracker ────────────────────────────────────────────────────────── */
+.footage-section {
+    flex-shrink: 0;
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+    padding: 8px 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.footage-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.footage-header .section-label {
+    padding: 0;
+    flex-shrink: 0;
+}
+
+.footage-meta {
+    flex: 1;
+    font-size: 11px;
+    color: var(--muted2);
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.footage-meta #footageAdded   { color: var(--offbeat);  font-weight: 700; }
+.footage-meta #footageTotal   { color: var(--text);     font-weight: 600; }
+.footage-sep                  { opacity: 0.4; }
+.footage-remaining-label      { color: var(--muted); }
+.footage-remaining            { color: var(--quarter); font-weight: 700; }
+.footage-remaining.done       { color: var(--offbeat); }
+
+/* Progress bar */
+.footage-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.footage-bar {
+    flex: 1;
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+.footage-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--accent);
+    border-radius: 4px;
+    transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                background 0.3s;
+}
+
+.footage-fill.done { background: var(--offbeat); }
+.footage-fill.over { background: var(--downbeat); }
+
+.footage-pct {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+    min-width: 42px;
+    text-align: right;
+    transition: color 0.3s;
+}
+
+.footage-pct.done { color: var(--offbeat); }
+.footage-pct.over { color: var(--downbeat); }
+
+/* Clip drop zone */
+.clip-drop {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 38px;
+    border: 1px dashed var(--border2);
+    border-radius: 6px;
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+
+.clip-drop:hover,
+.clip-drop.drag-over {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(78, 142, 247, 0.04);
+}
+
+.clip-drop-icon { font-size: 14px; opacity: 0.7; }
+
+/* Clip list */
+.clip-list {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    max-height: 140px;
+    overflow-y: auto;
+}
+
+.clip-row {
+    display: grid;
+    grid-template-columns: 1fr auto 120px auto;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 6px;
+    border-radius: 4px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    transition: background 0.15s;
+}
+
+.clip-row:hover { background: var(--bg); }
+
+.clip-name {
+    font-size: 11px;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.clip-dur {
+    font-size: 11px;
+    color: var(--muted2);
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.clip-bar {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.clip-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width 0.3s;
+}
+
+.clip-remove {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-size: 11px;
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 3px;
+    transition: color 0.15s, background 0.15s;
+    flex-shrink: 0;
+}
+
+.clip-remove:hover {
+    color: var(--downbeat);
+    background: rgba(255, 71, 87, 0.1);
+}
+
 /* ── Scrollbars ─────────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }

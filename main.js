@@ -53,6 +53,14 @@ ipcMain.handle('save-file', async (_, { content, defaultName, ext }) => {
     return result.filePath;
 });
 
+ipcMain.handle('open-clips', async () => {
+    const result = await dialog.showOpenDialog(win, {
+        properties: ['openFile', 'multiSelections'],
+        filters: [{ name: 'Video', extensions: ['mp4', 'mov', 'avi', 'mkv', 'webm', 'mts', 'm4v'] }],
+    });
+    return result.canceled ? null : result.filePaths;
+});
+
 ipcMain.handle('find-python', () => {
     for (const cmd of ['python3', 'python']) {
         try {

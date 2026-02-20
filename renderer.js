@@ -14,6 +14,7 @@ const state = {
     grid:        null,
     lyricsGrid:  [],
     pythonCmd:   null,
+    clips:       [],   // [{name, path, duration}]
 };
 
 // ── DOM ───────────────────────────────────────────────────────────────────────
@@ -40,14 +41,24 @@ const el = {
     lyricsGrid:     $('lyricsGrid'),
     wordCount:      $('wordCount'),
     exportBar:      $('exportBar'),
-    exportJson:     $('exportJson'),
-    exportLrc:      $('exportLrc'),
-    resetBtn:       $('resetBtn'),
-    headerStatus:   $('headerStatus'),
-    waveformCanvas: $('waveformCanvas'),
-    timelineCanvas: $('timelineCanvas'),
-    waveformScroll: $('waveformScroll'),
-    timelineScroll: $('timelineScroll'),
+    exportJson:        $('exportJson'),
+    exportLrc:         $('exportLrc'),
+    resetBtn:          $('resetBtn'),
+    headerStatus:      $('headerStatus'),
+    waveformCanvas:    $('waveformCanvas'),
+    timelineCanvas:    $('timelineCanvas'),
+    waveformScroll:    $('waveformScroll'),
+    timelineScroll:    $('timelineScroll'),
+    // Footage tracker
+    footageSection:    $('footageSection'),
+    footageFill:       $('footageFill'),
+    footagePct:        $('footagePct'),
+    footageAdded:      $('footageAdded'),
+    footageRemaining:  $('footageRemaining'),
+    footageTotal:      $('footageTotal'),
+    footageClearBtn:   $('footageClearBtn'),
+    clipDrop:          $('clipDrop'),
+    clipList:          $('clipList'),
 };
 
 // ── Colors ────────────────────────────────────────────────────────────────────
@@ -514,7 +525,7 @@ async function handleExportLRC() {
 function resetApp() {
     Object.assign(state, {
         filePath: null, audioBuffer: null, bpm: null,
-        duration: null, grid: null, lyricsGrid: [],
+        duration: null, grid: null, lyricsGrid: [], clips: [],
     });
     el.mainContent.classList.add('hidden');
     el.dropSection.classList.remove('hidden');
@@ -532,6 +543,102 @@ async function initPython() {
         el.transcribeBtn.disabled = true;
         el.transcribeBtn.title    = 'Python not found — use Paste Lyrics';
     }
+}
+
+// ── Footage Tracker ───────────────────────────────────────────────────────────
+
+function fmtSec(sec) {
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
+// Get duration from any media file via hidden HTML5 element
+function getMediaDuration(filePath) {
+    return new Promise((resolve) => {
+        const safeUrl = `file://${filePath.replace(/\\/g, '/')}`;
+        const vid = document.createElement('video');
+        vid.preload = 'metadata';
+        vid.onloadedmetadata = () => resolve(isFinite(vid.duration) ? vid.duration : null);
+        vid.onerror = () => {
+            // Fallback: try as audio
+            const aud = document.createElement('audio');
+            aud.preload = 'metadata';
+            aud.onloadedmetadata = () => resolve(isFinite(aud.duration) ? aud.duration : null);
+            aud.onerror = () => resolve(null);
+            aud.src = safeUrl;
+        };
+        vid.src = safeUrl;
+    });
+}
+
+async function addClips(filePaths) {
+    for (const fp of filePaths) {
+        const dur = await getMediaDuration(fp);
+        if (dur && dur > 0) {
+            state.clips.push({ name: path.basename(fp), path: fp, duration: dur });
+        }
+    }
+    updateFootageTracker();
+}
+
+function removeClip(index) {
+    state.clips.splice(index, 1);
+    updateFootageTracker();
+}
+
+function clearClips() {
+    state.clips = [];
+    updateFootageTracker();
+}
+
+function updateFootageTracker() {
+    const songDur   = state.duration || 0;
+    const totalClip = state.clips.reduce((s, c) => s + c.duration, 0);
+    const rawPct    = songDur > 0 ? (totalClip / songDur) * 100 : 0;
+    const displayPct = Math.min(rawPct, 100);
+    const remaining = Math.max(songDur - totalClip, 0);
+    const done      = rawPct >= 100;
+    const over      = rawPct > 100;
+
+    // Fill bar
+    el.footageFill.style.width = displayPct + '%';
+    el.footageFill.className   = 'footage-fill' + (over ? ' over' : done ? ' done' : '');
+
+    // Percent label
+    el.footagePct.textContent = Math.round(rawPct) + '%';
+    el.footagePct.className   = 'footage-pct' + (over ? ' over' : done ? ' done' : '');
+
+    // Stats
+    el.footageAdded.textContent     = fmtSec(totalClip);
+    el.footageTotal.textContent     = songDur > 0 ? fmtSec(songDur) : '—';
+    el.footageRemaining.textContent = done ? '✓ FULL' : songDur > 0 ? fmtSec(remaining) : '—';
+    el.footageRemaining.className   = done ? 'footage-remaining done' : 'footage-remaining';
+
+    renderClipList(songDur);
+}
+
+function renderClipList(songDur) {
+    el.clipList.innerHTML = '';
+
+    for (let i = 0; i < state.clips.length; i++) {
+        const clip    = state.clips[i];
+        const clipPct = songDur > 0 ? Math.min((clip.duration / songDur) * 100, 100) : 0;
+
+        const row = document.createElement('div');
+        row.className = 'clip-row';
+        row.innerHTML = `
+            <div class="clip-name" title="${clip.name}">${clip.name}</div>
+            <div class="clip-dur">${fmtSec(clip.duration)}</div>
+            <div class="clip-bar"><div class="clip-bar-fill" style="width:${clipPct.toFixed(1)}%"></div></div>
+            <button class="clip-remove" data-i="${i}">✕</button>
+        `;
+        el.clipList.appendChild(row);
+    }
+
+    el.clipList.querySelectorAll('.clip-remove').forEach((btn) => {
+        btn.addEventListener('click', () => removeClip(parseInt(btn.dataset.i)));
+    });
 }
 
 // ── Event Listeners ───────────────────────────────────────────────────────────
@@ -593,6 +700,27 @@ el.exportLrc.addEventListener('click',  handleExportLRC);
 
 // Reset
 el.resetBtn.addEventListener('click', resetApp);
+
+// ── Footage Tracker Events ────────────────────────────────────────────────────
+
+el.clipDrop.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    el.clipDrop.classList.add('drag-over');
+});
+el.clipDrop.addEventListener('dragleave', () => el.clipDrop.classList.remove('drag-over'));
+el.clipDrop.addEventListener('drop', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    el.clipDrop.classList.remove('drag-over');
+    const files = [...e.dataTransfer.files].map((f) => f.path).filter(Boolean);
+    if (files.length) addClips(files);
+});
+el.clipDrop.addEventListener('click', async () => {
+    const result = await ipcRenderer.invoke('open-clips');
+    if (result && result.length) addClips(result);
+});
+
+el.footageClearBtn.addEventListener('click', clearClips);
 
 // ── Boot ──────────────────────────────────────────────────────────────────────
 initPython();
